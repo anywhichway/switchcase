@@ -80,7 +80,7 @@ The main power of `switchcase` comes from the use of the ES2015 object initializ
 
 # Rational and Background
 
-There are a number of articles on the use of decalaritive or functional approaches to the replacement of switch. In our opinion, here are three of the best:
+There are a number of articles on the use of decalarative or functional approaches to the replacement of switch. In our opinion, here are three of the best:
 
 1) July, 2014 [Replacing switch statements with object literals](https://toddmotto.com/deprecating-the-switch-statement-for-object-literals/) ... plus commentary on [Reddit](http://www.reddit.com/r/javascript/comments/2b4s6r/deprecating_the_switch_statement_for_object).
 
