@@ -1,0 +1,36 @@
+{
+  "name": "switchcase",
+  "version": "0.0.2",
+  "description": "Declarative and functional switch supporting literals, functional tests, and regular expressions",
+  "engines": {},
+  "license": "MIT",
+  "scripts": {
+  	"prepare": "browserify index.js -o browser/switchcase.js && uglifyjs browser/switchcase.js -o browser/switchcase.min.js"
+   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anywhichway/switchcase.git"
+  },
+  "keywords": [
+    "switch",
+    "case"
+  ],
+  "author": "Simon Y. Blackwell <syblackwell@anywhichway.com> (http://www.github.com/anywhichway)",
+  "bugs": {
+    "url": "https://github.com/anywhichway/switchcase/issues"
+  },
+  "homepage": "https://github.com/anywhichway/switchcase#readme",
+  "devDependencies": {
+    "benchmark": "^2.1.3",
+    "blanket": "^1.2.3",
+    "chai": "^3.4.1",
+    "codacy-coverage": "^2.0.0",
+    "codeclimate-test-reporter": "^0.2.0",
+    "istanbul": "^0.4.2",
+    "mocha": "^2.3.4",
+    "uglify-es": "^3.1.6"
+  },
+  "dependencies": {
+   
+  }
+}

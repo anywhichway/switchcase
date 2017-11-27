@@ -1,0 +1,35 @@
+<html>
+<head>
+<script src="../index.js"></script>
+</head>
+<body>
+<script>
+let sw = switchcase({
+	1: "Case one, a literal",
+	[(value) => value===2]: "Case two, a function",
+	[/3/]: "Case three, a regular expression",
+	[4]: () => "Case four, just demonstrating a functional value",
+	default: "Defaulted"
+});
+
+console.log(sw(1));
+console.log(sw(2));
+console.log(sw(3));
+console.log(sw(4)()); // note the function invocation
+console.log(sw(5));
+
+sw = switchcase()
+	.default("Defaulted") // note, you can put the default anywhere!
+	.case(1,"Case one, a literal")
+	.case(value => value===2, "Case two, a function")
+	.case(/3/,"Case three, a regular expression")
+	.case(4,() => "Case four, just demonstrating a functional value");
+
+console.log(sw(1));
+console.log(sw(2));
+console.log(sw(3));
+console.log(sw(4)()); // note the function invocation
+console.log(sw(5));
+</script>
+</body>
+</html>
