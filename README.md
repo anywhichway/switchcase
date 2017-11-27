@@ -93,6 +93,8 @@ We simply wanted a switch capability that could support literals, functional tes
 
 # Release History - Reverse Chronological Order
 
+2017-11-27 v0.0.3 Added unit tests
+
 2017-11-27 v0.0.2 Added documentation
 
 2017-11-27 v0.0.1 First public release
