@@ -76,7 +76,7 @@ Otherwise, a soft compare is done and "1" will equal 1.
 
 # Internals
 
-The main power of `switchcase` comes from the use of the ES2015 object initializer syntax, `[]`. This allows the use of the JavaScript interpreter to validate functions and regular expressions before they get turned into string property names. The `switchcase` function they loops through the properties in the object and converts them back to functions or regular expressions.
+The main power of `switchcase` comes from the use of the ES2015 object initializer syntax, `[]`. This allows the use of the JavaScript interpreter to validate functions and regular expressions before they get turned into string property names. The `switchcase` function then loops through the properties in the object and converts them back to functions or regular expressions.
 
 # Rational and Background
 
