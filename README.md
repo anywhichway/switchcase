@@ -40,6 +40,8 @@ Case two, a function
 
 Case three, a regular expression
 
+Case four, just demonstrating a functional value
+
 Defaulted
 ```
 
@@ -86,7 +88,7 @@ There are a number of articles on the use of decalarative or functional approach
 
 2) Jan, 2017 [Rethinking JavaScript: Eliminate the switch statement for better code](https://hackernoon.com/rethinking-javascript-eliminate-the-switch-statement-for-better-code-5c81c044716d)
 
-3) Nov, 2017 [Alternative to JavaScript’s switch statement with a functional twist](https://codeburst.io/alternative-to-javascripts-switch-statement-with-a-functional-twist-3f572787ba1c)
+3) Nov, 2017 [Alternative to JavaScriptâ€™s switch statement with a functional twist](https://codeburst.io/alternative-to-javascripts-switch-statement-with-a-functional-twist-3f572787ba1c)
 
 We simply wanted a switch capability that could support literals, functional tests, and regular expressions so that we could build super flexible routers.
 
