@@ -1,12 +1,12 @@
 (function() {
 	function switchcase(cases={},strict) {
 		const switches = [];
-		for(let key in cases) {
+		Object.keys(cases).forEach((key) => {
 			try {
 				key = Function("return " + key)();
-			} catch(e) { }
+			} catch(e) { true; }
 			switches.push([key,cases[key]]);
-		}
+		});
 		const switcher = (value) => { 
 			for(let item of switches) {
 				const key = item[0],
@@ -21,11 +21,11 @@
 		switcher.case = (test,value) => {
 			switches.push([test,value]);
 			return switcher;
-		}
+		};
 		switcher.default = (value) => {
 			switcher.otherwise = value;
 			return switcher;
-		}
+		};
 		switcher.match = (value) => switcher(value);
 		return switcher;
 	}
