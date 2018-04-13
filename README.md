@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a5863bf7debd4dfbacb043f5b3996e3a)](https://www.codacy.com/app/syblackwell/switchcase?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=anywhichway/switchcase&amp;utm_campaign=Badge_Grade)
+
 # switchcase
 
 Declarative and functional switch supporting literals, functional tests, and regular expressions.
@@ -94,6 +96,8 @@ We simply wanted a switch capability that could support literals, functional tes
 
 
 # Release History - Reverse Chronological Order
+
+2018-04-13 v1.0.0 Code style improvements
 
 2017-11-27 v0.0.3 Added unit tests
 

@@ -4,7 +4,7 @@
 		for(let key in cases) {
 			try {
 				key = Function("return " + key)();
-			} catch(e) { ; }
+			} catch(e) { }
 			switches.push([key,cases[key]]);
 		}
 		const switcher = (value) => { 
@@ -16,7 +16,7 @@
 				}
 			} 
 			return switcher.otherwise; 
-		}
+		};
 		switcher.otherwise = cases.default;
 		switcher.case = (test,value) => {
 			switches.push([test,value]);
@@ -36,4 +36,4 @@
 	if(typeof(window)!=="undefined") {
 		window.switchcase = switchcase;
 	}
-})();
+}());
