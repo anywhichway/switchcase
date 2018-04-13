@@ -94,10 +94,9 @@ There are a number of articles on the use of decalarative or functional approach
 
 We simply wanted a switch capability that could support literals, functional tests, and regular expressions so that we could build super flexible routers.
 
-
 # Release History - Reverse Chronological Order
 
-2018-04-13 v1.0.0 Code style improvements
+2018-04-13 v1.0.0 Code style improvements. Fixed node.js unit test config.
 
 2017-11-27 v0.0.3 Added unit tests
 

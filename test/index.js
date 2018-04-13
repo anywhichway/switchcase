@@ -5,8 +5,7 @@ var chai,
 if(typeof(window)==="undefined") {
 	chai = require("chai");
 	expect = chai.expect;
-	unionizor = require("../index.js");
-	_ = require("lodash");
+	switchcase = require("../index.js");
 }
 
 let sw1 = switchcase({
