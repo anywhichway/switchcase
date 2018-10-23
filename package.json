@@ -4,6 +4,7 @@
   "description": "Declarative and functional switch supporting literals, functional tests, and regular expressions",
   "engines": {},
   "license": "MIT",
+  "main": "browser/switchcase.js",
   "scripts": {
     "prepare": "browserify index.js -o browser/switchcase.js && uglifyjs browser/switchcase.js -o browser/switchcase.min.js"
   },
