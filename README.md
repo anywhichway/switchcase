@@ -96,6 +96,8 @@ We simply wanted a switch capability that could support literals, functional tes
 
 # Release History - Reverse Chronological Order
 
+2018-10-24 v1.0.1 Add babel to transpile the main entry point to ES5
+
 2018-04-13 v1.0.0 Code style improvements. Fixed node.js unit test config.
 
 2017-11-27 v0.0.3 Added unit tests
