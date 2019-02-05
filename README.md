@@ -2,7 +2,7 @@
 
 # switchcase
 
-Declarative and functional switch supporting literals, functional tests, and regular expressions.
+Declarative and functional switch supporting literals, functional tests, regular expressions, and object pattern matching.
 
 This module can be used to simplify code using `if then else` and `switch` statements. It can also be used as a foundation for super flexible routers.
 
@@ -33,7 +33,25 @@ console.log(sw(5));
 
 ```
 
-will print
+```javascript
+let sw = switchcase({
+	1: () => console.log("Case one, a literal"),
+	[(value) => value===2]: () => console.log("Case two, a function"),
+	[/3/]: () => console.log("Case three, a regular expression"),
+	[4]: () => () => console.log("Case four, just demonstrating a functional value"),
+	default: () => console.log("Defaulted")
+},{call:true}); // if the switch values are functions, call them
+
+console.log(sw(1));
+console.log(sw(2));
+console.log(sw(3));
+console.log(sw(4)()); // note the function invocation
+console.log(sw(5));
+
+```
+
+
+will both print
 
 ```
 Case one, a literal
@@ -55,28 +73,66 @@ The returned function can also be enhanced through the use of chained calls:
 
 2) `default(value)`, which sets the default result.
 
-The same example above using this approach:
-
-```javascript
-let sw = switchcase()
-	.default("Defaulted") // note, you can put the default anywhere!
-	.case(1,"Case one, a literal")
-	.case(value => value===2, "Case two, a function")
-	.case(/3/,"Case three, a regular expression")
-	.case(4,() => "Case four, just demonstrating a functional value");
-
-console.log(sw(1));
-console.log(sw(2));
-console.log(sw(3));
-console.log(sw(4)()); // note the function invocation
-console.log(sw(5));
-
-```
 
 You can also optionaly use `sw.match(value)` in place of direct invocation, `sw(value)`, if you think it assists with clarity.
 
-Finally, a second argument to `switchcase(<object>,<boolean>)` will treat all property values in the case object that can be converted to integers as integers and only match integers to those properties.
-Otherwise, a soft compare is done and "1" will equal 1.
+## Optional Argument
+
+`switchcase` can take a second argument `switchcase(<object>,<object || boolean>)`. 
+
+If the second argument is an object it can have the properties `strict`, `call`, `continuable`. If it is a boolean, it is used as the value of `strict`. 
+
+If `strict` is `true`, all property values in the case object that can be converted to integers as integers and only match integers to those properties. Otherwise, a soft compare is done and "1" will equal 1. 
+
+If `call` is `true` and a property value is a function, it will be called with the switching value and the result returned. This can be very powerful when used with pattern matching destructuring.
+
+If `continuable` is `true`, call is set to `true` and any functions that return undefined cascade to the next case. This is useful for adding logging and similar capability for router like functionality.
+
+```
+const sw = switchcase({},{continuable:true})
+	.case(()=>true,(value) => console.log(value))
+	.case(1,value => value)
+	.case(2,value => value * 2)
+```
+
+The same second argument can be provided to the invocation of a `switchcase`, if you want to defer the resolution type, e.g.
+
+```
+const sw = switchcase({1:"case 1"});
+
+sw(1,{strict:true});
+```
+
+## Pattern Matching
+
+You can use partial objects in cases to match objects:
+
+```
+const sw = switchcase();
+
+sw.case({address: {city: "Seattle"}},({name}) => name);
+
+sw({name:"joe",address:{city: "Seattle"}},{call:true})); // returns "joe"
+```
+
+If you want to use patterns with object based switching, you will need to stringify them, e.g.
+
+
+```
+const sw = switchcase({
+	[JSON.stringify({address: {city: "Seattle"}})]: ({name}) => name
+});
+
+```
+
+You might also want to explore the use of functional switches:
+
+```
+const sw = switchcase({
+	[({address: {city}}) => city==="Seattle"]: ({name}) => name;
+});
+```
+
 
 # Internals
 
@@ -92,9 +148,11 @@ There are a number of articles on the use of decalarative or functional approach
 
 3) Nov, 2017 [Alternative to JavaScript’s switch statement with a functional twist](https://codeburst.io/alternative-to-javascripts-switch-statement-with-a-functional-twist-3f572787ba1c)
 
-We simply wanted a switch capability that could support literals, functional tests, and regular expressions so that we could build super flexible routers.
+We simply wanted a switch capability that could support literals, functional tests, regular expressions, and object patterns so that we could build super flexible routers.
 
 # Release History - Reverse Chronological Order
+
+2019-02-05 v1.0.1 Added support for object pattern matching, ability to call switch values, case continuation, and defering the strict constraint to switch evaluation time.
 
 2018-04-13 v1.0.0 Code style improvements. Fixed node.js unit test config.
 

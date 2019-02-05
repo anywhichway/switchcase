@@ -1,0 +1,21 @@
+<html>
+<head>
+<script src="../index.js"></script>
+</head>
+<body>
+<script>
+const fetchType = switchcase({
+  [/webdav|owncloud|nextcloud/]: "webdav",
+  dropbox: "dropbox",
+  localfile: "localfile"
+})("webdav");
+console.log(fetchType);
+
+const fetchTypeSwitch = switchcase()
+    .case(/webdav|owncloud|nextcloud/, "webdav")
+    .case("dropbox", "dropbox")
+    .case("localfile", "localfile");
+console.log(fetchTypeSwitch("webdav"));
+</script>
+</body>
+</html>
