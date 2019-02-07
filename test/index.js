@@ -58,6 +58,26 @@ describe("Test",function() {
 		sw.case({address: {city: "Seattle"}},({name}) => name)
 		expect(sw({name:"joe",address:{city: "Seattle"}},{call:true})).to.equal("joe");
 	});
+	it("case pattern functional",function() {
+		let sw = switchcase({});
+		sw.case({address: {city: value => value==="Seattle"}},({name}) => name)
+		expect(sw({name:"joe",address:{city: "Seattle"}},{call:true,functionalMatch:true})).to.equal("joe");
+	});
+	it("case pattern RegExp",function() {
+		let sw = switchcase({});
+		sw.case({address: {city: /Seattle/g}},({name}) => name)
+		expect(sw({name:"joe",address:{city: "Seattle"}},{call:true,functionalMatch:true})).to.equal("joe");
+	});
+	it("case pattern key test",function() {
+		let sw = switchcase({});
+		sw.case({address: {city: "Seattle"}},({name}) => name)
+		expect(sw({name:"joe",[key => key==="address"]:{city: "Seattle"}},{call:true})).to.equal("joe");
+	});
+	it("case key test",function() {
+		let sw = switchcase({});
+		sw.case({[key => key==="address"]: {city: "Seattle"}},({name}) => name)
+		expect(sw({name:"joe","address":{city: "Seattle"}},{call:true})).to.equal("joe");
+	});
 	it("case destructuring",function() {
 		const sw = switchcase({
 			[({address: {city}}) => city==="Seattle"]: ({name}) => name

@@ -133,6 +133,27 @@ const sw = switchcase({
 });
 ```
 
+Or, functional matching:
+
+```
+const sw = switchcase();
+
+sw.case({address: {city: value => value==="Seattle"}},({name}) => name);
+
+sw({name:"joe",address:{city: "Seattle"}},{call:true,functionalMatch:true})); // returns "joe"
+```
+
+And even, reverse functional matching:
+
+```
+const sw = switchcase();
+
+sw.case({address: {city: "Seattle"}},({name}) => name);
+
+sw({name:"joe",address:{city: value => value==="Seattle"}},{call:true,functionalMatch:true})); // returns "joe"
+```
+
+Also, anywhere you use a function in functional switches or functional matching, you can also use a regular expression.
 
 # Internals
 
@@ -152,7 +173,9 @@ We simply wanted a switch capability that could support literals, functional tes
 
 # Release History - Reverse Chronological Order
 
-2019-02-05 v1.0.1 Added support for object pattern matching, ability to call switch values, case continuation, and defering the strict constraint to switch evaluation time.
+2019-02-06 v1.0.2 Added support for functional object patterns. The values in pattern properties can be functions or RegExp used to test the value passed into the switch. Alternatively, the values passed in to the switch can be used to reverse match to the switch.  
+
+2019-02-05 v1.0.1 Added support for object pattern matching, ability to call switch values, case continuation, and deferring the strict constraint to switch evaluation time.
 
 2018-04-13 v1.0.0 Code style improvements. Fixed node.js unit test config.
 

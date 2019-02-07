@@ -1,15 +1,74 @@
 (function() {
-	function matches(value,pattern) {
-		return Object.keys(pattern).every(key => {
-			const pvalue = pattern[key],
-				ptype = typeof(value),
-				vvalue = value[key],
-				vtype = typeof(vvalue);
-			if(ptype==="undefined" || (pvalue && ptype==="object" && Object.keys(pvalue).length===0)) return true;
-			if(pvalue && ptype==="object" && vtype==="object") {
-				return vvalue ? matches(vvalue,pvalue) : false;
+	function matches(value,pattern,functional) {
+		const type = typeof(value);
+		if(pattern instanceof Date) {
+			if(value instanceof Date) {
+				return pattern.getTime()===value.getTime();
 			}
-			return pvalue===vvalue;
+			return false;
+		}
+		if(pattern instanceof RegExp) {
+			if(["boolean","number","string"].includes(type)) {
+				return pattern.test(value);
+			}
+			return false;
+		}
+		return Object.keys(pattern).every(key => {
+			let pvalue = pattern[key],
+				ptype = typeof(pvalue),
+				test = value => value===pvalue;
+			if(ptype==="undefined" || (pvalue && ptype==="object" && Object.keys(pvalue).length===0)) {
+				return true;
+			}
+			if(key.startsWith("/")) {
+				const i = key.lastIndexOf("/");
+				if(i>0) {
+					try {
+						const regexp = new RegExp(key.substring(1,i),key.substring(i+1));
+						test = key => regexp.test(key);
+					} catch(e) {
+					true;
+					}
+				}
+			} else if(key.includes("=>")) {
+				try {
+					test = Function("return " + key)();
+				} catch(e) {
+					true;
+				}
+			}
+			return Object.keys(value).every(vkey => {
+				let vtest = () => vkey===key;
+				if(vkey.startsWith("/")) {
+					const i = vkey.lastIndexOf("/");
+					if(i>0) {
+						try {
+							const regexp = new RegExp(vkey.substring(1,i),vkey.substring(i+1));
+							vtest = regexp.test(key);
+						} catch(e) {
+						true;
+						}
+					}
+				} else if(vkey.includes("=>")) {
+					try {
+						vtest = Function("return " + vkey)();
+					} catch(e) {
+						true;
+					}
+				}
+				if(test(vkey) || vtest()) {
+					const vvalue = value[vkey],
+						vtype = typeof(vvalue);
+					if(functional && ptype==="function") {
+						return pvalue(vvalue);
+					}
+					if(pvalue && ptype==="object" && vtype==="object") {
+						return vvalue ? matches(vvalue,pvalue,functional) : false;
+					}
+					return pvalue===vvalue;
+				}
+				return true;
+			});
 		})
 	}
 	function switchcase(cases={},defaults={}) {
@@ -30,11 +89,10 @@
 			for(let item of switches) {
 				const key = item[0],
 					type = typeof(key);
-				if((key && type==="object" && key instanceof RegExp && key.test(value)) 
-						|| (type==="function" && key(value)) 
+				if((key && type==="object" && matches(value,key,options.functionalMatch))
+					  || (type==="function" && key(value)) 
 						|| (options.strict && key===value) 
-						|| (!options.strict && key==value) 
-						|| key && type==="object" && matches(value,key)) {
+						|| (!options.strict && key==value))	{
 					let result = item[1];
 					if(typeof(result)==="function" && options.call) {
 						const resolved = result(value);
