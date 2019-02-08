@@ -41,6 +41,12 @@ describe("Test",function() {
 		},{call:true});
 		expect(sw({name:"joe",address:{city: "Seattle"}})).to.equal("joe");
 	});
+	it("pattern matching array init",function() {
+		let sw = switchcase([
+			[{address: {city: "Seattle"}},({name}) => name]
+		],{call:true});
+		expect(sw({name:"joe",address:{city: "Seattle"}})).to.equal("joe");
+	});
 	it("default",function() {
 		let sw = switchcase({
 			[/1/]: "1",
@@ -96,5 +102,23 @@ describe("Test",function() {
 			.default("1");
 		expect(sw(2)).to.equal("1");
 		expect(logged).to.equal(2);
+	});
+	it("route",function() {
+		let logged,
+			sw = switchcase({},{pathRouter:true})
+				.case("/:id/:name",value => {
+					console.log(logged = value);
+				});
+		sw({req:{url:"https://www.somesite.com/1/joe"},res:{}});
+		expect(logged!==undefined).equal(true);
+	})
+	it("route custom location",function() {
+		let logged,
+			sw = switchcase({},{pathRouter:{route:object => new URL(object.req.url).pathname}})
+				.case("/:id/:name",value => {
+					console.log(logged = value);
+				});
+		sw({req:{url:"https://www.somesite.com/1/joe"},res:{}});
+		expect(logged!==undefined).equal(true);
 	})
 });
