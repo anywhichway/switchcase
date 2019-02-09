@@ -1,14 +1,14 @@
 (function() {
-	"use strict"
+	"use strict";
 	const matches = (value,pattern,functional,routing) => {
 		const type = typeof(value);
 		if(typeof(pattern)!=="object" && type!=="object") {
-			if(value===pattern) return true;
+			if(value===pattern) { return true; }
 			if(routing && type==="string" && typeof(pattern)==="string") {
 				const pparts = pattern.split("/"),
 					vparts = value.split("/");
-				if(pparts[0]==="") pparts.shift();
-				if(vparts[0]==="") vparts.shift();
+				if(pparts[0]==="") { pparts.shift(); }
+				if(vparts[0]==="") { vparts.shift(); }
 				let part;
 				if(pparts.length!==vparts.length) {
 					return false;
@@ -49,10 +49,10 @@
 		if(pattern instanceof Function) {
 			return !!pattern(value);
 		}
-		return Object.keys(pattern).every(key => {
+		return Object.keys(pattern).every((key) => {
 			let pvalue = pattern[key],
 				ptype = typeof(pvalue),
-				test = value => value===pvalue;
+				test = (value) => value===pvalue;
 			if(ptype==="undefined" || (pvalue && ptype==="object" && Object.keys(pvalue).length===0)) {
 				return true;
 			}
@@ -61,7 +61,7 @@
 				if(i>0) {
 					try {
 						const regexp = new RegExp(key.substring(1,i),key.substring(i+1));
-						test = key => regexp.test(key);
+						test = (key) => regexp.test(key);
 					} catch(e) {
 					true;
 					}
@@ -73,7 +73,7 @@
 					true;
 				}
 			}
-			return Object.keys(value).every(vkey => {
+			return Object.keys(value).every((vkey) => {
 				let vtest = () => vkey===key;
 				if(vkey.startsWith("/")) {
 					const i = vkey.lastIndexOf("/");
@@ -105,12 +105,12 @@
 				}
 				return true;
 			});
-		})
+		});
 	},
 	deepFreeze = (data) => {
 		if(data && typeof(data)==="object") {
 			Object.freeze(data);
-			Object.keys(data).forEach(key => deepFreeze(data[key]));
+			Object.keys(data).forEach((key) => deepFreeze(data[key]));
 		}
 		return data;
 	},
@@ -138,7 +138,7 @@
 		}
 		if(Array.isArray(cases)) {
 			// is array passed in and it does not contain other arrays, then it is for value matching
-			switches = cases.map(item => Array.isArray(item) ? [deepFreeze(item[0]),item[1]] : [item]);
+			switches = cases.map((item) => Array.isArray(item) ? [deepFreeze(item[0]),item[1]] : [item]);
 		} else {
 			Object.keys(cases).forEach((key) => {
 				let test = key;
@@ -152,8 +152,8 @@
 			delete options.pathRouter;
 			delete options.continuable;
 			options = Object.assign({},defaults,options);
-			if(options.pathRouter) options.continuable = true;
-			if(options.continuable) options.call = true;
+			if(options.pathRouter) { options.continuable = true; }
+			if(options.continuable) { options.call = true; }
 			let target = value,
 				setParams;
 			if(options.pathRouter) {
@@ -161,7 +161,7 @@
 				if(type==="function") {
 					target = options.pathRouter.route(value)
 				} else if(type==="string") {
-					target = value[options.pathRouter.route]
+					target = value[options.pathRouter.route];
 				} else if(value.req) {
 					target = getPath(value.req);
 				} else if(value.request) {
@@ -178,7 +178,7 @@
 							value.request.params = Object.assign({},value.request.params,params);
 						} else {
 							value.params = Object.assign({},value.params,params);
-						}
+						};
 					}
 				}
 			}
@@ -208,7 +208,7 @@
 						}
 						const resolved = result(value);
 						if(resolved!==undefined || !options.continuable) return resolved;
-						if(options.continuable) continue;
+						if(options.continuable) { continue; }
 						result = resolved;
 					}
 					return result;
