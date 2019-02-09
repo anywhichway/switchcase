@@ -138,7 +138,8 @@
 			defaults = {strict:defaults};
 		}
 		if(Array.isArray(cases)) {
-			switches = cases.map(([test,result]) => [deepFreeze(test),result]);
+			// is array passed in and it does not contain other arrays, then it is for value matching
+			switches = cases.map(item => Array.isArray(item) ? [deepFreeze(item[0]),item[1]] : [item]);
 		} else {
 			Object.keys(cases).forEach((key) => {
 				let test = key;
@@ -183,14 +184,25 @@
 				}
 			}
 			const routing = options.pathRouter ? {} : null;
+			let results; // for collecting items when using as an object matcher
 			for(let item of switches) {
 				const key = item[0],
 					type = typeof(key);
-				if((key && (type==="object" || routing) && matches(target,key,options.functionalMatch,routing))
-					  || (type==="function" && key(target)) 
-						|| (options.strict && key===target) 
-						|| (!options.strict && key==target))	{
-					let result = item[1];
+				let pattern = key,
+					result = item[1];
+				if(result===undefined) { // swap target and pattern if using for object matching
+					target = key;
+					pattern = value;
+				}
+				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
+					  || (result!==undefined && type==="function" && key(target)) 
+						|| (result!==undefined && options.strict && key===target) 
+						|| (result!==undefined && !options.strict && key==target))	{
+					if(result===undefined) { // case is an object to match
+						if(!results) results = [];
+						results.push(target);
+						continue;
+					}
 					if(typeof(result)==="function" && options.call) {
 						if(setParams && routing.params) {
 							setParams(value,routing.params);
@@ -202,19 +214,26 @@
 					}
 					return result;
 				}
-			} 
-			return options.call && typeof(switcher.otherwise)==="function" ? switcher.otherwise(value) : switcher.otherwise; 
+			}
+			const result = options.call && typeof(switcher.otherwise)==="function" ? switcher.otherwise(value) : switcher.otherwise;
+			return result === undefined ? results : result;
 		};
 		switcher.otherwise = cases.default;
 		switcher.case = (test,value) => {
 			switches.push([test,value]);
 			return switcher;
 		};
+		switcher.route = (test,value) => {
+			defaults.pathRouter = true;
+			switches.push([test,value]);
+			return switcher;
+		}
 		switcher.default = (value) => {
 			switcher.otherwise = value;
 			return switcher;
 		};
 		switcher.match = (value) => switcher(value);
+		switcher.handle = switcher.match;
 		return switcher;
 	}
 	if(typeof(module)!=="undefined") {

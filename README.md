@@ -6,7 +6,25 @@ Declarative and functional switch supporting literals, functional tests, regular
 
 This module can be used to simplify code using `if then else` and `switch` statements. 
 
-It can also be used as a super [flexible router](#router).
+It can also be used as a [router](#router), e.g.
+
+```javascript
+const router = switchcase()
+		.route("/:id/:name",value => {
+			console.log(logged = value);
+		});
+router.handle({req:{url:"https://www.somesite.com/1/joe"},res:{}});
+```
+
+Or, it can be used as a powerful object selection pattern matcher, e.g.
+
+```
+switchcase([
+	{name:"joe",age:21,address:{city:"Seattle",zipcode:"98101"}},
+	{name:"mary",age:20,address:{city:"Seattle",zipcode:"90101"}},
+	{name:"joan",age:22,address:{city:"Bainbridge Island",zipcode:"98110"}]])
+	.match({age:(value) => value >=21,address:{city:"Seattle"}});
+```
 
 # Installation
 
@@ -89,12 +107,14 @@ The returned function can also be enhanced through the use of chained calls:
 
 1) `case(test,value)`, which adds a test and value.
 
-2) `default(value)`, which sets the default result.
+2) `route(test,handler)`, which turns the switch into a router adds a test and handler.
 
-3) `otherwise(value)`, an alias for `default`.
+3) `default(value)`, which sets the default result.
+
+4) `otherwise(value)`, an alias for `default`.
 
 
-You can also optionaly use `sw.match(value)` in place of direct invocation, `sw(value)`, if you think it assists with clarity.
+You can also optionaly use `sw.match(value)` or `sw.handle(value)` in place of direct invocation, `sw(value)`, if you think it assists with clarity.
 
 ## Optional Argument
 
@@ -104,9 +124,9 @@ If the second argument is an object it can have the properties `strict`, `call`,
 
 If `strict` is `true`, all property values in the case object that can be converted to integers as integers and only match integers to those properties. Otherwise, a soft compare is done and "1" will equal 1. 
 
-If `call` is `true` and a property value is a function, it will be called with the switching value and the result returned. This can be very powerful when used with pattern matching destructuring.
+If `call` is `true` and a property value is a function, it will be called with the switching value and the result returned. This can be very powerful when used with pattern matching destructuring. You do not need to set this if you explicity set `pathRouter` (see below) or call `route(test,handler)` on your switch.
 
-If `continuable` is `true`, call is set to `true` and any functions that return undefined cascade to the next case. This is useful for adding logging and similar capability for router like functionality.
+If `continuable` is `true`, `call` is set to `true` and any functions that return undefined cascade to the next case. This is useful for adding logging and similar capability for router like functionality. You do not need to set this if you explicity set `pathRouter` (see below) or call `route(test,handler)` on your switch.
 
 ```
 const sw = switchcase({},{continuable:true})
@@ -175,15 +195,31 @@ sw.case({address: {city: "Seattle"}},({name}) => name);
 sw({name:"joe",address:{city: value => value==="Seattle"}},{call:true,functionalMatch:true})); // returns "joe"
 ```
 
+Reverse functional matching is leveraged to support [object selection](#object-selection).
+
 Also, anywhere you use a function in functional switches or functional matching, you can use a regular expression.
+
+<a name="object-selection">&nbsp;</a>
+
+## Object Selection
+
+If you pass in an iterable (usually Array) of values, then `switchcase` can be used to return the subset of values that match a pattern. The below will return the object with the name "joe".
+
+```
+switchcase([
+	{name:"joe",age:21,address:{city:"Seattle",zipcode:"98101"}},
+	{name:"mary",age:20,address:{city:"Seattle",zipcode:"90101"}},
+	{name:"joan",age:22,address:{city:"Bainbridge Island",zipcode:"98110"}]])
+	.match({age:(value) => value >=21,address:{city:"Seattle"}});
+```
 
 <a name="router">&nbsp;</a>
 
 ## Path Router
 
-You can use `switchcase` like a regular router if you create your switch with the `pathRouter` option.
+You can use `switchcase` like a regular router if you create your switch with the `pathRouter` option or ever call `.route(test,handler)` instead of `case(test,value)`.
 
-If `pathRouter` is simply set to `true`, `switchcase` will automatically handle standard request objects handed in as a request response pair in any of these forms: 
+`switchcase` will automatically handle requests in any of these forms: 
 
 ```javascript
 {request:{path: <some path string>},response:<some response object>}
@@ -210,7 +246,7 @@ If `pathRouter` is simply set to `true`, `switchcase` will automatically handle 
 
 ```
 
-If `pathRouter` is simply `true`, then during processing `request` objects or the `hashchange` events are automatically enhanced to have the following properties if they don't already exist and parameterized paths with colon delimiters are automatically handled, e.g. `/:id/:version/`. This maximizes similarity to routers from other libraries. 
+If a `pathRouter` configuration object is not passed in, then `request` objects or the `hashchange` events are automatically enhanced to have the properties shown below if they don't already exist and parameterized paths with colon delimiters are automatically handled, e.g. `/:id/:version/`. This maximizes similarity to routers from other libraries. 
 
 
 ```javascript
@@ -219,11 +255,11 @@ If `pathRouter` is simply `true`, then during processing `request` objects or th
 	pathname: <the same as path>,
 	location: [a URL object](https://developer.mozilla.org/en-US/docs/Web/API/URL), // if a url string existed
 	url: <url string> // if location existed
-	params: {<paramName>:<paramValue>[,...} // if a paramterized path was matched
+	params: {<paramName>:<paramValue>[,...} // if a parameterized path was matched
 }
 ```
 
-Alternatively, an object can be provided to look-up the path for matching and set parameters when a parameterized path is encoundtered:
+Alternatively, an `pathRouter` configuration object can be provided to look-up the path for matching and set parameters when a parameterized path is encountered:
 
 ```javascript
 {
@@ -245,20 +281,20 @@ function bodyparser({req}) {
 	return;
 }
 
-const sw = switchcase({},{pathRouter:true})
-		.case(()=>true,bodyparser)
-		.case("/:id/:name",({req,res}) => {
+const sw = switchcase()
+		.route(()=>true,bodyparser)
+		.route("/:id/:name",({req,res}) => {
 			console.log(req.params,req.path);
 			return true;
 		})
-		.case("/login/",({req,res}) => {
+		.route("/login/",({req,res}) => {
 			console.log(req.params,req.path);
 			return true;
 		})
 		.default({req} => {
 			console.log("Not Found",req.params,req.path);
 		});
-sw({req:{url:"https://www.somesite.com/1/joe"},res:{}});
+sw.handle({req:{url:"https://www.somesite.com/1/joe"},res:{}});
 ```
 
 
@@ -279,6 +315,8 @@ There are a number of articles on the use of decalarative or functional approach
 We simply wanted a switch capability that could support literals, functional tests, regular expressions, and object patterns so that we could build super flexible routers.
 
 # Release History - Reverse Chronological Order
+
+2019-02-09 v1.0.4 Added object selection. Enhanced routing with some naming aliases/sugar.
 
 2019-02-08 v1.0.3 Added array initialization of switch and the `pathRouter` option.
 

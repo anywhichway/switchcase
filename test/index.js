@@ -105,20 +105,30 @@ describe("Test",function() {
 	});
 	it("route",function() {
 		let logged,
-			sw = switchcase({},{pathRouter:true})
-				.case("/:id/:name",value => {
+			router = switchcase()
+				.route("/:id/:name",value => {
 					console.log(logged = value);
 				});
-		sw({req:{url:"https://www.somesite.com/1/joe"},res:{}});
+		router.handle({req:{url:"https://www.somesite.com/1/joe"},res:{}});
 		expect(logged!==undefined).equal(true);
 	})
 	it("route custom location",function() {
 		let logged,
-			sw = switchcase({},{pathRouter:{route:object => new URL(object.req.url).pathname}})
-				.case("/:id/:name",value => {
+			router = switchcase({},{pathRouter:{route:object => new URL(object.req.url).pathname}})
+				.route("/:id/:name",value => {
 					console.log(logged = value);
 				});
-		sw({req:{url:"https://www.somesite.com/1/joe"},res:{}});
+		router({req:{url:"https://www.somesite.com/1/joe"},res:{}});
 		expect(logged!==undefined).equal(true);
 	})
+	it("object matching",function() {
+		const objects = [
+			{name:"joe",age:21,address:{city:"Seattle",zipcode:"98101"}},
+			{name:"mary",age:20,address:{city:"Seattle",zipcode:"90101"}},
+			{name:"joan",age:22,address:{city:"Bainbridge Island",zipcode:"98110"}}],
+			matches = switchcase(objects).match({age:(value) => value >=21,address:{city:"Seattle"}});
+		expect(Array.isArray(matches)).equal(true);
+		expect(matches.length).equal(1);
+		expect(matches[0]).equal(objects[0]);
+	});
 });
