@@ -178,8 +178,8 @@
 							value.request.params = Object.assign({},value.request.params,params);
 						} else {
 							value.params = Object.assign({},value.params,params);
-						};
-					}
+						}
+					};
 				}
 			}
 			const routing = options.pathRouter ? {} : null;
