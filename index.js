@@ -130,7 +130,7 @@
 			}
 			return object.path = new URL(object.url || object.URL || object.newURL).pathname;
 		}
-	}
+	};
 	function switchcase(cases={},defaults={}) {
 		let switches = [];
 		if(defaults && typeof(defaults)!=="object") {
@@ -207,7 +207,7 @@
 							setParams(value,routing.params);
 						}
 						const resolved = result(value);
-						if(resolved!==undefined || !options.continuable) return resolved;
+						if(resolved!==undefined || !options.continuable) { return resolved; }
 						if(options.continuable) { continue; }
 						result = resolved;
 					}
