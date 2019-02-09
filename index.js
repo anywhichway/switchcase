@@ -136,9 +136,8 @@
 		if(defaults && typeof(defaults)!=="object") {
 			defaults = {strict:defaults};
 		}
-		if(Array.isArray(cases)) {
-			// is array passed in and it does not contain other arrays, then it is for value matching
-			switches = cases.map((item) => Array.isArray(item) ? [deepFreeze(item[0]),item[1]] : [item]);
+		if(cases!=null && typeof cases[Symbol.iterator] === "function") {
+			switches = cases.slice(); 
 		} else {
 			Object.keys(cases).forEach((key) => {
 				let test = key;
@@ -185,13 +184,16 @@
 			const routing = options.pathRouter ? {} : null;
 			let results; // for collecting items when using as an object matcher
 			for(let item of switches) {
-				const key = item[0],
+				const key = Array.isArray(item) ? item[0] : item,
 					type = typeof(key);
 				let pattern = key,
 					result = item[1];
-				if(result===undefined) { // swap target and pattern if using for object matching
+				if(key===item) { // swap target and pattern if using for object matching
 					target = key;
 					pattern = value;
+				}
+				if(key && key===item && type==="object" && !Object.isFrozen(key)) { // does't check deep but good enough and fast
+					deepFreeze(key);
 				}
 				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
 						|| (result!==undefined && type==="function" && key(target))

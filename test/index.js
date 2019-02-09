@@ -106,8 +106,9 @@ describe("Test",function() {
 	it("route",function() {
 		let logged,
 			router = switchcase()
-				.route("/:id/:name",value => {
-					console.log(logged = value);
+				.route("/:id/:name",({req:{params:{id,name}}}) => {
+					logged = id;
+					console.log(`You requested the object with id ${id} and name ${name}`);
 				});
 		router.handle({req:{url:"https://www.somesite.com/1/joe"},res:{}});
 		expect(logged!==undefined).equal(true);

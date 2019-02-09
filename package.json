@@ -1,7 +1,7 @@
 {
   "name": "switchcase",
-  "version": "1.0.4",
-  "description": "Declarative and functional switch supporting literals, functional tests, regular expressions, and object patterns",
+  "version": "1.0.5",
+  "description": "Declarative and functional switch supporting literals, functional tests, regular expressions, object patterns and routes",
   "engines": {},
   "license": "MIT",
   "scripts": {

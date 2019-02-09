@@ -1,15 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function() {
-	"use strict"
+	"use strict";
 	const matches = (value,pattern,functional,routing) => {
 		const type = typeof(value);
 		if(typeof(pattern)!=="object" && type!=="object") {
-			if(value===pattern) return true;
+			if(value===pattern) { return true; }
 			if(routing && type==="string" && typeof(pattern)==="string") {
 				const pparts = pattern.split("/"),
 					vparts = value.split("/");
-				if(pparts[0]==="") pparts.shift();
-				if(vparts[0]==="") vparts.shift();
+				if(pparts[0]==="") { pparts.shift(); }
+				if(vparts[0]==="") { vparts.shift(); }
 				let part;
 				if(pparts.length!==vparts.length) {
 					return false;
@@ -50,10 +50,10 @@
 		if(pattern instanceof Function) {
 			return !!pattern(value);
 		}
-		return Object.keys(pattern).every(key => {
+		return Object.keys(pattern).every((key) => {
 			let pvalue = pattern[key],
 				ptype = typeof(pvalue),
-				test = value => value===pvalue;
+				test = (value) => value===pvalue;
 			if(ptype==="undefined" || (pvalue && ptype==="object" && Object.keys(pvalue).length===0)) {
 				return true;
 			}
@@ -62,7 +62,7 @@
 				if(i>0) {
 					try {
 						const regexp = new RegExp(key.substring(1,i),key.substring(i+1));
-						test = key => regexp.test(key);
+						test = (key) => regexp.test(key);
 					} catch(e) {
 					true;
 					}
@@ -74,7 +74,7 @@
 					true;
 				}
 			}
-			return Object.keys(value).every(vkey => {
+			return Object.keys(value).every((vkey) => {
 				let vtest = () => vkey===key;
 				if(vkey.startsWith("/")) {
 					const i = vkey.lastIndexOf("/");
@@ -106,12 +106,12 @@
 				}
 				return true;
 			});
-		})
+		});
 	},
 	deepFreeze = (data) => {
 		if(data && typeof(data)==="object") {
 			Object.freeze(data);
-			Object.keys(data).forEach(key => deepFreeze(data[key]));
+			Object.keys(data).forEach((key) => deepFreeze(data[key]));
 		}
 		return data;
 	},
@@ -131,15 +131,14 @@
 			}
 			return object.path = new URL(object.url || object.URL || object.newURL).pathname;
 		}
-	}
+	};
 	function switchcase(cases={},defaults={}) {
 		let switches = [];
 		if(defaults && typeof(defaults)!=="object") {
 			defaults = {strict:defaults};
 		}
-		if(Array.isArray(cases)) {
-			// is array passed in and it does not contain other arrays, then it is for value matching
-			switches = cases.map(item => Array.isArray(item) ? [deepFreeze(item[0]),item[1]] : [item]);
+		if(cases!=null && typeof cases[Symbol.iterator] === "function") {
+			switches = cases.slice(); 
 		} else {
 			Object.keys(cases).forEach((key) => {
 				let test = key;
@@ -153,16 +152,16 @@
 			delete options.pathRouter;
 			delete options.continuable;
 			options = Object.assign({},defaults,options);
-			if(options.pathRouter) options.continuable = true;
-			if(options.continuable) options.call = true;
+			if(options.pathRouter) { options.continuable = true; }
+			if(options.continuable) { options.call = true; }
 			let target = value,
 				setParams;
 			if(options.pathRouter) {
 				const type = typeof(options.pathRouter.route);
 				if(type==="function") {
-					target = options.pathRouter.route(value)
+					target = options.pathRouter.route(value);
 				} else if(type==="string") {
-					target = value[options.pathRouter.route]
+					target = value[options.pathRouter.route];
 				} else if(value.req) {
 					target = getPath(value.req);
 				} else if(value.request) {
@@ -180,26 +179,29 @@
 						} else {
 							value.params = Object.assign({},value.params,params);
 						}
-					}
+					};
 				}
 			}
 			const routing = options.pathRouter ? {} : null;
 			let results; // for collecting items when using as an object matcher
 			for(let item of switches) {
-				const key = item[0],
+				const key = Array.isArray(item) ? item[0] : item,
 					type = typeof(key);
 				let pattern = key,
 					result = item[1];
-				if(result===undefined) { // swap target and pattern if using for object matching
+				if(key===item) { // swap target and pattern if using for object matching
 					target = key;
 					pattern = value;
 				}
+				if(key && key===item && type==="object" && !Object.isFrozen(key)) { // does't check deep but good enough and fast
+					deepFreeze(key);
+				}
 				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
-					  || (result!==undefined && type==="function" && key(target)) 
-						|| (result!==undefined && options.strict && key===target) 
+						|| (result!==undefined && type==="function" && key(target))
+						|| (result!==undefined && options.strict && key===target)
 						|| (result!==undefined && !options.strict && key==target))	{
 					if(result===undefined) { // case is an object to match
-						if(!results) results = [];
+						if(!results) { results = []; }
 						results.push(target);
 						continue;
 					}
@@ -208,8 +210,8 @@
 							setParams(value,routing.params);
 						}
 						const resolved = result(value);
-						if(resolved!==undefined || !options.continuable) return resolved;
-						if(options.continuable) continue;
+						if(resolved!==undefined || !options.continuable) { return resolved; }
+						if(options.continuable) { continue; }
 						result = resolved;
 					}
 					return result;
@@ -227,7 +229,7 @@
 			defaults.pathRouter = true;
 			switches.push([test,value]);
 			return switcher;
-		}
+		};
 		switcher.default = (value) => {
 			switcher.otherwise = value;
 			return switcher;
