@@ -192,7 +192,7 @@
 					target = key;
 					pattern = value;
 				}
-				if(key && key===item && type==="object" && !Object.isFrozen(key)) { // does't check deep but good enough and fast
+				if(key && key!==item && type==="object" && !Object.isFrozen(key)) { // doesn't check deep but good enough and fast
 					deepFreeze(key);
 				}
 				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))

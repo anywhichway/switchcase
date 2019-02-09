@@ -316,6 +316,8 @@ We simply wanted a switch capability that could support literals, functional tes
 
 # Release History - Reverse Chronological Order
 
+2019-02-09 v1.0.6 Corrected issue with pattern matched objects getting frozen.
+
 2019-02-09 v1.0.5 Optimized switch creation for large arrays. Can also now pass in a true iterable.
 
 2019-02-09 v1.0.4 Added object selection. Enhanced routing with some naming aliases/sugar.
