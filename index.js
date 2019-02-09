@@ -159,7 +159,7 @@
 			if(options.pathRouter) {
 				const type = typeof(options.pathRouter.route);
 				if(type==="function") {
-					target = options.pathRouter.route(value)
+					target = options.pathRouter.route(value);
 				} else if(type==="string") {
 					target = value[options.pathRouter.route];
 				} else if(value.req) {
@@ -194,11 +194,11 @@
 					pattern = value;
 				}
 				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
-					  || (result!==undefined && type==="function" && key(target)) 
-						|| (result!==undefined && options.strict && key===target) 
+						|| (result!==undefined && type==="function" && key(target))
+						|| (result!==undefined && options.strict && key===target)
 						|| (result!==undefined && !options.strict && key==target))	{
 					if(result===undefined) { // case is an object to match
-						if(!results) results = [];
+						if(!results) { results = []; }
 						results.push(target);
 						continue;
 					}
@@ -226,7 +226,7 @@
 			defaults.pathRouter = true;
 			switches.push([test,value]);
 			return switcher;
-		}
+		};
 		switcher.default = (value) => {
 			switcher.otherwise = value;
 			return switcher;
