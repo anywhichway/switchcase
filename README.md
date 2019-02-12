@@ -316,7 +316,9 @@ We simply wanted a switch capability that could support literals, functional tes
 
 # Release History - Reverse Chronological Order
 
-2019-02011 v1.0.7 Tested switch recursion and added ability to pass args during recursion. See recursion.html example.
+2019-02-11 v1.0.8 Patched incomplete example.
+
+2019-02-11 v1.0.7 Tested switch recursion and added ability to pass args during recursion. See recursion.html example.
 
 2019-02-09 v1.0.6 Corrected issue with pattern matched objects getting frozen.
 
