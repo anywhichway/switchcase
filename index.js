@@ -147,7 +147,7 @@
 				switches.push([test,cases[key]]);
 			});
 		}
-		const switcher = (value,options={}) => {
+		const switcher = (value,options={},...args) => {
 			delete options.pathRouter;
 			delete options.continuable;
 			options = Object.assign({},defaults,options);
@@ -196,7 +196,7 @@
 					deepFreeze(key);
 				}
 				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
-						|| (result!==undefined && type==="function" && key(target))
+						|| (result!==undefined && type==="function" && key(target,...args))
 						|| (result!==undefined && options.strict && key===target)
 						|| (result!==undefined && !options.strict && key==target))	{
 					if(result===undefined) { // case is an object to match
@@ -208,7 +208,7 @@
 						if(setParams && routing.params) {
 							setParams(value,routing.params);
 						}
-						const resolved = result(value);
+						const resolved = result(value,...args);
 						if(resolved!==undefined || !options.continuable) { return resolved; }
 						if(options.continuable) { continue; }
 						result = resolved;
