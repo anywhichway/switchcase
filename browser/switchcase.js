@@ -148,7 +148,7 @@
 				switches.push([test,cases[key]]);
 			});
 		}
-		const switcher = Function("defaults","switches","matches","switcher",
+		const switcher = Function("defaults","switches","matches","deepFreeze","getPath","switcher",
 `return ${defaults.async ? "async " : ""}(value,options={},...args) => {
 	delete options.pathRouter;
 	delete options.continuable;
@@ -194,7 +194,7 @@
 			target = key;
 			pattern = value;
 		}
-		if(key && key!==item && type==="object" && !Object.isFrozen(key)) { // doesn't check deep but good enough and fast
+		if(key && key!==item && type==="object"  && !Object.isFrozen(key)) { // doesn't check deep but good enough and fast
 			deepFreeze(key);
 		}
 		if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
@@ -210,7 +210,7 @@
 				if(setParams && routing.params) {
 					setParams(value,routing.params);
 				}
-				const resolved = await result(value,...args);
+				const resolved = ${defaults.async ? "await " : ""} result(value,...args);
 				if(resolved!==undefined || !options.continuable) { return resolved; }
 				if(options.continuable) { continue; }
 				result = resolved;
@@ -221,7 +221,7 @@
 	const result = options.call && typeof(switcher().otherwise)==="function" ? ${defaults.async ? "await " : ""} switcher().otherwise(value) : switcher().otherwise;
 	return result === undefined ? results : result;
 }`
-		)(defaults,switches,matches,() => switcher);
+		)(defaults,switches,matches,deepFreeze,getPath,() => switcher);
 		switcher.otherwise = cases.default;
 		switcher.case = (test,value) => {
 			switches.push([test,value]);

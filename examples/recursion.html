@@ -38,7 +38,10 @@ async function decrypt(value) {
 			async (object) => { object.message = await encrypt(object.message); }) 
 				
 		.case(({security}) => security==="secret", // encrypt message and summary
-			async (object) => { object.summary = await encrypt(object.summary); object.message = encrypt(object.message); }) 
+			async (object) => { 
+				object.summary = await encrypt(object.summary); 
+				object.message = await encrypt(object.message);  
+			})
 			
 		.case(({security}) => security==="top secret", // delete message
 			async (object,parentKey,parentObject) => { delete parentObject[parentKey];  })
@@ -46,7 +49,11 @@ async function decrypt(value) {
 		.case(({privateKey}) => privateKey!==undefined,
 			async (object) => { object[await encrypt("privateKey")] = await encrypt(object.privateKey); delete object.privateKey; })
 				
-		.default((object) => object); // return object when done processing
+		.default((object) => {
+			  return Array.isArray(object)
+			    ? object.filter((item) => item!=null)
+			    : object;
+			});
 		
 	unsecure = switchcase({},{continuable:true,async:true},parent)
 		.case((value) => !value || typeof(value)!=="object",
@@ -80,13 +87,16 @@ async function decrypt(value) {
 		],
 		privateKey: "joe's private key",
 		name: "joe",
-		hidden:true,
 		ssn: "555-55-5555"
 	};
 	
-	console.log(await secure(joe));
+	console.log(JSON.stringify(await secure(joe)));
 	
 	console.log(await unsecure(joe));
+	
+  //document.getElementById("secure").innerText = JSON.stringify(await secure(joe));
+
+  //document.getElementById("unsecure").innerText = JSON.stringify(await unsecure(joe));
 
 })()
 

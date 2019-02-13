@@ -318,6 +318,10 @@ We simply wanted a switch capability that could support literals, functional tes
 
 # Release History - Reverse Chronological Order
 
+2019-02-13 v1.0.11 Addressed [issue 4](https://github.com/anywhichway/switchcase/issues/4) 
+
+2019-02-12 v1.0.10 Removed an extra await.
+
 2019-02-12 v1.0.9 Added async support. See recursion.html example.
 
 2019-02-11 v1.0.8 Patched incomplete example.
