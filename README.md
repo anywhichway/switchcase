@@ -120,13 +120,15 @@ You can also optionaly use `sw.match(value)` or `sw.handle(value)` in place of d
 
 `switchcase` can take a second argument `switchcase(<object>,<object || boolean>)`. 
 
-If the second argument is an object it can have the properties `strict`, `call`, `continuable`, `pathRouter`. If it is a boolean, it is used as the value of `strict`. 
+If the second argument is an options object it can have the properties `async`, `call`, `continuable`, `pathRouter`, and `strict`. If it is a boolean, it is used as the value of `strict`. 
 
-If `strict` is `true`, all property values in the case object that can be converted to integers as integers and only match integers to those properties. Otherwise, a soft compare is done and "1" will equal 1. 
+If `async` is true, then the case tests and actions can be asynchronous and their return values will be awaited.
 
 If `call` is `true` and a property value is a function, it will be called with the switching value and the result returned. This can be very powerful when used with pattern matching destructuring. You do not need to set this if you explicity set `pathRouter` (see below) or call `route(test,handler)` on your switch.
 
 If `continuable` is `true`, `call` is set to `true` and any functions that return undefined cascade to the next case. This is useful for adding logging and similar capability for router like functionality. You do not need to set this if you explicity set `pathRouter` (see below) or call `route(test,handler)` on your switch.
+
+If `strict` is `true`, all property values in the case object that can be converted to integers will only match integers. Otherwise, a soft compare is done and "1" will equal 1. 
 
 ```
 const sw = switchcase({},{continuable:true})
@@ -315,6 +317,8 @@ There are a number of articles on the use of decalarative or functional approach
 We simply wanted a switch capability that could support literals, functional tests, regular expressions, and object patterns so that we could build super flexible routers.
 
 # Release History - Reverse Chronological Order
+
+2019-02-12 v1.0.9 Added async support. See recursion.html example.
 
 2019-02-11 v1.0.8 Patched incomplete example.
 

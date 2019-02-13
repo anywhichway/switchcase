@@ -131,8 +131,8 @@
 			}
 			return object.path = new URL(object.url || object.URL || object.newURL).pathname;
 		}
-	};
-	function switchcase(cases={},defaults={}) {
+	},
+	switchcase = (cases={},defaults={}) => {
 		let switches = [];
 		if(defaults && typeof(defaults)!=="object") {
 			defaults = {strict:defaults};
@@ -148,78 +148,80 @@
 				switches.push([test,cases[key]]);
 			});
 		}
-		const switcher = (value,options={},...args) => {
-			delete options.pathRouter;
-			delete options.continuable;
-			options = Object.assign({},defaults,options);
-			if(options.pathRouter) { options.continuable = true; }
-			if(options.continuable) { options.call = true; }
-			let target = value,
-				setParams;
-			if(options.pathRouter) {
-				const type = typeof(options.pathRouter.route);
-				if(type==="function") {
-					target = options.pathRouter.route(value);
-				} else if(type==="string") {
-					target = value[options.pathRouter.route];
-				} else if(value.req) {
-					target = getPath(value.req);
+		const switcher = Function("defaults","switches","matches","switcher",
+`return ${defaults.async ? "async " : ""}(value,options={},...args) => {
+	delete options.pathRouter;
+	delete options.continuable;
+	options = Object.assign({},defaults,options);
+	if(options.pathRouter) { options.continuable = true; }
+	if(options.continuable) { options.call = true; }
+	let target = value,
+		setParams;
+	if(options.pathRouter) {
+		const type = typeof(options.pathRouter.route);
+		if(type==="function") {
+			target = options.pathRouter.route(value);
+		} else if(type==="string") {
+			target = value[options.pathRouter.route];
+		} else if(value.req) {
+			target = getPath(value.req);
+		} else if(value.request) {
+			target = getPath(value.request);
+		} else {
+			target = getPath(value);
+		}
+		setParams = options.pathRouter.setParams;
+		if(!setParams) {
+			setParams = (value,params) => {
+				if(value.req) {
+					value.req.params = Object.assign({},value.req.params,params);
 				} else if(value.request) {
-					target = getPath(value.request);
+					value.request.params = Object.assign({},value.request.params,params);
 				} else {
-					target = getPath(value);
+					value.params = Object.assign({},value.params,params);
 				}
-				setParams = options.pathRouter.setParams;
-				if(!setParams) {
-					setParams = (value,params) => {
-						if(value.req) {
-							value.req.params = Object.assign({},value.req.params,params);
-						} else if(value.request) {
-							value.request.params = Object.assign({},value.request.params,params);
-						} else {
-							value.params = Object.assign({},value.params,params);
-						}
-					};
-				}
+			};
+		}
+	}
+	const routing = options.pathRouter ? {} : null;
+	let results; // for collecting items when using as an object matcher
+	for(let item of switches) {
+		const key = Array.isArray(item) ? item[0] : item,
+			type = typeof(key);
+		let pattern = key,
+			result = item[1];
+		if(key===item) { // swap target and pattern if using for object matching
+			target = key;
+			pattern = value;
+		}
+		if(key && key!==item && type==="object" && !Object.isFrozen(key)) { // doesn't check deep but good enough and fast
+			deepFreeze(key);
+		}
+		if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
+				|| (result!==undefined && type==="function" && ${defaults.async ? "await " : ""} key(target,...args))
+				|| (result!==undefined && options.strict && key===target)
+				|| (result!==undefined && !options.strict && key==target))	{
+			if(result===undefined) { // case is an object to match
+				if(!results) { results = []; }
+				results.push(target);
+				continue;
 			}
-			const routing = options.pathRouter ? {} : null;
-			let results; // for collecting items when using as an object matcher
-			for(let item of switches) {
-				const key = Array.isArray(item) ? item[0] : item,
-					type = typeof(key);
-				let pattern = key,
-					result = item[1];
-				if(key===item) { // swap target and pattern if using for object matching
-					target = key;
-					pattern = value;
+			if(typeof(result)==="function" && options.call) {
+				if(setParams && routing.params) {
+					setParams(value,routing.params);
 				}
-				if(key && key!==item && type==="object" && !Object.isFrozen(key)) { // doesn't check deep but good enough and fast
-					deepFreeze(key);
-				}
-				if((key && (type==="object" || routing) && matches(target,pattern,result===undefined ? true : options.functionalMatch,routing))
-						|| (result!==undefined && type==="function" && key(target,...args))
-						|| (result!==undefined && options.strict && key===target)
-						|| (result!==undefined && !options.strict && key==target))	{
-					if(result===undefined) { // case is an object to match
-						if(!results) { results = []; }
-						results.push(target);
-						continue;
-					}
-					if(typeof(result)==="function" && options.call) {
-						if(setParams && routing.params) {
-							setParams(value,routing.params);
-						}
-						const resolved = result(value,...args);
-						if(resolved!==undefined || !options.continuable) { return resolved; }
-						if(options.continuable) { continue; }
-						result = resolved;
-					}
-					return result;
-				}
+				const resolved = await result(value,...args);
+				if(resolved!==undefined || !options.continuable) { return resolved; }
+				if(options.continuable) { continue; }
+				result = resolved;
 			}
-			const result = options.call && typeof(switcher.otherwise)==="function" ? switcher.otherwise(value) : switcher.otherwise;
-			return result === undefined ? results : result;
-		};
+			return result;
+		}
+	}
+	const result = options.call && typeof(switcher().otherwise)==="function" ? ${defaults.async ? "await " : ""} switcher().otherwise(value) : switcher().otherwise;
+	return result === undefined ? results : result;
+}`
+		)(defaults,switches,matches,() => switcher);
 		switcher.otherwise = cases.default;
 		switcher.case = (test,value) => {
 			switches.push([test,value]);

@@ -4,18 +4,19 @@
 </head>
 <body>
 <script>
-function encrypt(value) {
+async function encrypt(value) {
 	return `!e!${value.split("").reverse().join("")}!e!`;
 }
 
-function decrypt(value) {
+async function decrypt(value) {
 	if(typeof(value)==="string" && value.startsWith("!e!") && value.endsWith("!e!")) {
 		return value.substring(3).split("").reverse().join("").substring(3);
 	}
 	return value;
 }
 
-const secure = switchcase({},{continuable:true},parent)
+(async function run() {
+	const secure = switchcase({},{continuable:true,async:true},parent)
 		.case((value) => /^\d{3}-?\d{2}-?\d{4}$/.test(value+""), // mask SSN
 			(value) => "***-**-" + value.substring(7))
 			
@@ -23,42 +24,55 @@ const secure = switchcase({},{continuable:true},parent)
 			(value) => value) // return anything that is not an object
 		
 		.case((value) => value && typeof(value)==="object",  // walk down objects
-			(object) => { Object.keys(object).forEach((key) => object[key] = secure(object[key],{},key,object)); })
+			async (object) => {
+				for(const key in object) {
+					const oldvalue = object[key],
+						newvalue = await secure(object[key],{},key,object);
+					if(oldvalue===undefined || object[key]!==undefined) {
+						object[key] = newvalue;
+					}
+				}
+			})
 			
 		.case(({security}) => security==="confidential", // encrypt message
-			(object) => { object.message = encrypt(object.message); }) 
+			async (object) => { object.message = await encrypt(object.message); }) 
 				
 		.case(({security}) => security==="secret", // encrypt message and summary
-			(object) => { object.summary = encrypt(object.summary); object.message = encrypt(object.message); }) 
+			async (object) => { object.summary = await encrypt(object.summary); object.message = encrypt(object.message); }) 
 			
 		.case(({security}) => security==="top secret", // delete message
-			(object,parentKey,parentObject) => { delete parentObject[parentKey];  })
+			async (object,parentKey,parentObject) => { delete parentObject[parentKey];  })
 				
 		.case(({privateKey}) => privateKey!==undefined,
-			(object) => { object[encrypt("privateKey")] = encrypt(object.privateKey); delete object.privateKey; })
+			async (object) => { object[await encrypt("privateKey")] = await encrypt(object.privateKey); delete object.privateKey; })
 				
 		.default((object) => object); // return object when done processing
 		
-	unsecure = switchcase({},{continuable:true},parent)
+	unsecure = switchcase({},{continuable:true,async:true},parent)
 		.case((value) => !value || typeof(value)!=="object",
 			(value) => value) // return anything that is not an object
 		.case((value) => value && typeof(value)==="object",  // decrypt keys
-				(object) => { 
-					Object.keys(object).forEach((key) => {
+				async (object) => { 
+					for(const key in object) {
 						const value = object[key],
-							decrypted = decrypt(key);
+							decrypted = await decrypt(key);
 						if(key!==decrypted) {
 							object[decrypted] = value;
 							delete object[key];
 						}
-					})})
+					}
+				})
 			
 		.case((value) => value && typeof(value)==="object",  // walk down objects
-			(object) => { Object.keys(object).forEach((key) => object[key] = unsecure(decrypt(object[key]),{},key,object)); })
+			async (object) => {
+				for(const key in object) {
+					object[key] = await unsecure(await decrypt(object[key]),{},key,object);
+				}
+			})
 				
 		.default((object) => object); // return object when done processing
 		
-const joe = {
+	const joe = {
 		messages: [
 			{security:"confidential", summary:"executive summary", message:"confidential info"},
 			{security:"secret", summary:"executive summary", message:"joe's secret"},
@@ -69,10 +83,13 @@ const joe = {
 		hidden:true,
 		ssn: "555-55-5555"
 	};
+	
+	console.log(await secure(joe));
+	
+	console.log(await unsecure(joe));
 
-console.log(secure(joe));
+})()
 
-console.log(unsecure(joe));
 
 /*const pipe = (...f) => (arg) => f.reduce((arg,f) => f(arg),arg)*/
 
