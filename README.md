@@ -18,7 +18,7 @@ router.handle({req:{url:"https://www.somesite.com/1/joe"},res:{}});
 
 Or, it can be used as a powerful object selection pattern matcher, e.g.
 
-```
+```javascript
 switchcase([
 	{name:"joe",age:21,address:{city:"Seattle",zipcode:"98101"}},
 	{name:"mary",age:20,address:{city:"Seattle",zipcode:"90101"}},
@@ -130,7 +130,7 @@ If `continuable` is `true`, `call` is set to `true` and any functions that retur
 
 If `strict` is `true`, all property values in the case object that can be converted to integers will only match integers. Otherwise, a soft compare is done and "1" will equal 1. 
 
-```
+```javascript
 const sw = switchcase({},{continuable:true})
 	.case(()=>true,(value) => console.log(value))
 	.case(1,value => value)
@@ -141,7 +141,7 @@ const sw = switchcase({},{continuable:true})
 
 With the exceptions of `continuable` and `pathRouter`, if you want to defer the resolution type, the same second argument can be provided to the invocation of a `switchcase` to override those provided when the switch was created, e.g.
 
-```
+```javascript
 const sw = switchcase({1:"case 1"});
 
 sw(1,{strict:true});
@@ -151,7 +151,7 @@ sw(1,{strict:true});
 
 You can use partial objects in cases to match objects:
 
-```
+```javascript
 const sw = switchcase();
 
 sw.case({address: {city: "Seattle"}},({name}) => name);
@@ -162,7 +162,7 @@ sw({name:"joe",address:{city: "Seattle"}},{call:true})); // returns "joe"
 If you want to use patterns with object based switching, you will need to stringify them, e.g.
 
 
-```
+```javascript
 const sw = switchcase({
 	[JSON.stringify({address: {city: "Seattle"}})]: ({name}) => name
 });
@@ -171,7 +171,7 @@ const sw = switchcase({
 
 You might also want to explore the use of functional switches:
 
-```
+```javascript
 const sw = switchcase({
 	[({address: {city}}) => city==="Seattle"]: ({name}) => name;
 });
@@ -179,7 +179,7 @@ const sw = switchcase({
 
 Or, functional matching:
 
-```
+```javascript
 const sw = switchcase();
 
 sw.case({address: {city: value => value==="Seattle"}},({name}) => name);
@@ -189,7 +189,7 @@ sw({name:"joe",address:{city: "Seattle"}},{call:true,functionalMatch:true})); //
 
 And even, reverse functional matching:
 
-```
+```javascript
 const sw = switchcase();
 
 sw.case({address: {city: "Seattle"}},({name}) => name);
@@ -207,7 +207,7 @@ Also, anywhere you use a function in functional switches or functional matching,
 
 If you pass in an iterable (usually Array) of values, then `switchcase` can be used to return the subset of values that match a pattern. The below will return the object with the name "joe".
 
-```
+```javascript
 switchcase([
 	{name:"joe",age:21,address:{city:"Seattle",zipcode:"98101"}},
 	{name:"mary",age:20,address:{city:"Seattle",zipcode:"90101"}},
@@ -277,7 +277,7 @@ When using `switchcase` as a router, any routed functions that return a value ot
 
 ### Path Router Example
 
-```
+```javascript
 function bodyparser({req}) {
 	... <do something to parse a body and augment the request> ...
 	return;
